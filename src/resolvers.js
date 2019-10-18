@@ -23,6 +23,22 @@ const resolvers = {
 
       return message;
     },
+    deleteMessage: (parent, { id }) => {
+      const { [id]: message } = messages;
+      if (!message) {
+        return false;
+      }
+      delete messages[id];
+      return true;
+    },
+    updateMessage: (parent, { id, text }) => {
+      const { [id]: message } = messages;
+      if (!message) {
+        return false;
+      }
+      messages[id].text = text;
+      return true;
+    },
   },
   User: {
     username: user => user.username.slice(0, 5),
