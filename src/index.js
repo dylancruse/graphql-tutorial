@@ -1,8 +1,6 @@
-const cors = require('cors');
-
 const { ApolloServer, gql } = require('apollo-server-express');
-
 const express = require('express');
+const cors = require('cors');
 
 const app = express();
 
@@ -11,18 +9,34 @@ app.use(cors());
 const schema = gql`
   type Query {
     me: User
+    user(id: ID!): User
+    users: [User!]
   }
 
   type User {
+    id: ID!
     username: String!
   }
 `;
 
+const users = {
+  1: {
+    id: '1',
+    username: 'Dylan Cruse',
+  },
+  2: {
+    id: '2',
+    username: 'Kate Larberg',
+  },
+};
+
+const me = users[1];
+
 const resolvers = {
   Query: {
-    me: () => ({
-      username: 'Dylan Cruse',
-    }),
+    me: () => me,
+    user: (parent, { id }) => users[id],
+    users: () => Object.values(users),
   },
 };
 
