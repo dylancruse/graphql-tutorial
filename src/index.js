@@ -1,52 +1,13 @@
-const { ApolloServer, gql } = require('apollo-server-express');
+const { ApolloServer } = require('apollo-server-express');
 const express = require('express');
 const cors = require('cors');
-const { users, messages } = require('../sampleData');
+const { schema } = require('./schema');
+const { resolvers } = require('./resolvers');
+const { users } = require('../sampleData');
 
 const app = express();
 
 app.use(cors());
-
-const schema = gql`
-  type Query {
-    me: User
-    user(id: ID!): User
-    users: [User!]
-
-    message(id: ID!): Message
-    messages: [Message!]
-  }
-
-  type User {
-    id: ID!
-    username: String!
-    messages: [Message!]
-  }
-
-  type Message {
-    id: ID!
-    text: String!
-    user: User!
-  }
-`;
-
-const resolvers = {
-  Query: {
-    me: (parent, args, { me }) => me,
-    user: (parent, { id }) => users[id],
-    users: () => Object.values(users),
-    message: (parent, { id }) => messages[id],
-    messages: () => Object.values(messages),
-  },
-  User: {
-    username: user => user.username.slice(0, 5),
-    messages: user =>
-      Object.values(messages).filter(message => user.id === message.userId),
-  },
-  Message: {
-    user: message => users[message.userId],
-  },
-};
 
 const server = new ApolloServer({
   typeDefs: schema,
