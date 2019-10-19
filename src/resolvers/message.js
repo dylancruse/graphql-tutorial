@@ -1,4 +1,4 @@
-import uuidv4 from 'uuid/v4';
+/* eslint-disable no-return-await */
 
 export default {
   Query: {
@@ -16,9 +16,14 @@ export default {
     deleteMessage: async (parent, { id }, { models }) =>
       await models.Message.destroy({ where: { id } }),
     updateMessage: async (parent, { id, text }, { models }) =>
-      await models.Message.findByPk(id).update({
-        text,
-      }),
+      await models.Message.update({ text }, { where: { id } })
+        .then(result => {
+          if (Object.values(result)[0] === 1) {
+            return true;
+          }
+          return false;
+        })
+        .catch(error => false),
   },
   Message: {
     user: async (message, args, { models }) =>
