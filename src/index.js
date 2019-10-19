@@ -4,8 +4,8 @@ const cors = require('cors');
 const { schema } = require('./schema');
 const { resolvers } = require('./resolvers');
 const { users } = require('./models');
+// const { sequelize, models } = require('./models/index.js');
 
-// test
 const app = express();
 
 app.use(cors());
