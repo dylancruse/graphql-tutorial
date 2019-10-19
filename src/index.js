@@ -1,7 +1,7 @@
 import express from 'express';
 import { ApolloServer } from 'apollo-server-express';
 import cors from 'cors';
-import schema from './schema/index';
+import schema from './schema';
 import resolvers from './resolvers';
 import models from './models';
 
