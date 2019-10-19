@@ -1,5 +1,5 @@
 const uuidv4 = require('uuid/v4');
-const { users, messages } = require('../sampleData');
+const { users, messages } = require('./models');
 
 const resolvers = {
   Query: {

@@ -3,7 +3,7 @@ const express = require('express');
 const cors = require('cors');
 const { schema } = require('./schema');
 const { resolvers } = require('./resolvers');
-const { users } = require('../sampleData');
+const { users } = require('./models');
 
 // test
 const app = express();
