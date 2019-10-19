@@ -2,41 +2,26 @@ import uuidv4 from 'uuid/v4';
 
 export default {
   Query: {
-    message: (parent, { id }, { models }) => models.messages[id],
-    messages: (parent, args, { models }) => Object.values(models.messages),
+    messages: async (parent, args, { models }) =>
+      await models.Message.findAll(),
+    message: async (parent, { id }, { models }) =>
+      await models.Message.findByPk(id),
   },
   Mutation: {
-    createMessage: (parent, { text }, { me, models }) => {
-      const id = uuidv4();
-      const message = {
-        id,
+    createMessage: async (parent, { text }, { me, models }) =>
+      await models.Message.create({
         text,
         userId: me.id,
-      };
-
-      models.messages[id] = message;
-      models.users[me.id].messageIds.push(id);
-
-      return message;
-    },
-    deleteMessage: (parent, { id }, { models }) => {
-      const { [id]: message } = models.messages;
-      if (!message) {
-        return false;
-      }
-      delete models.messages[id];
-      return true;
-    },
-    updateMessage: (parent, { id, text }, { models }) => {
-      const { [id]: message } = models.messages;
-      if (!message) {
-        return false;
-      }
-      models.messages[id].text = text;
-      return true;
-    },
+      }),
+    deleteMessage: async (parent, { id }, { models }) =>
+      await models.Message.destroy({ where: { id } }),
+    updateMessage: async (parent, { id, text }, { models }) =>
+      await models.Message.findByPk(id).update({
+        text,
+      }),
   },
   Message: {
-    user: (message, args, { models }) => models.users[message.userId],
+    user: async (message, args, { models }) =>
+      await models.User.findByPk(message.userId),
   },
 };
