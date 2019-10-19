@@ -12,4 +12,4 @@ const message = (sequelize, DataTypes) => {
   return Message;
 };
 
-module.exports = { message };
+export default message;
