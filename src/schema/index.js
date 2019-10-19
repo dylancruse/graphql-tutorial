@@ -1,6 +1,6 @@
-const { gql } = require('apollo-server-express');
+import { gql } from 'apollo-server-express';
 
-const schema = gql`
+export default gql`
   type Query {
     me: User
     user(id: ID!): User
@@ -28,5 +28,3 @@ const schema = gql`
     user: User!
   }
 `;
-
-module.exports = { schema };

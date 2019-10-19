@@ -1,10 +1,11 @@
-const { ApolloServer } = require('apollo-server-express');
-const express = require('express');
-const cors = require('cors');
-const { schema } = require('./schema');
-const { resolvers } = require('./resolvers');
-const { users } = require('./models');
-// const { sequelize, models } = require('./models/index.js');
+import express from 'express';
+import { ApolloServer } from 'apollo-server-express';
+import cors from 'cors';
+import schema from './schema/index';
+import resolvers from './resolvers';
+import models from './models';
+
+// import { sequelize, models } from './models/index';
 
 const app = express();
 
@@ -14,7 +15,8 @@ const server = new ApolloServer({
   typeDefs: schema,
   resolvers,
   context: {
-    me: users[1],
+    models,
+    me: models.users[1],
   },
 });
 
