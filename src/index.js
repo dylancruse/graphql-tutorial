@@ -4,6 +4,7 @@ import cors from 'cors';
 import schema from './schema';
 import resolvers from './resolvers';
 import models, { sequelize } from './models';
+import 'dotenv/config';
 
 const createUsersWithMessages = async () => {
   await models.User.create(
@@ -61,6 +62,7 @@ const server = new ApolloServer({
   context: async () => ({
     models,
     me: await models.User.findByLogin('dcruse'),
+    secret: process.env.SECRET,
   }),
 });
 

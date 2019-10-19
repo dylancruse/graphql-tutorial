@@ -1,3 +1,4 @@
+/* eslint-disable no-return-await */
 import bcrypt from 'bcrypt';
 
 const user = (sequelize, DataTypes) => {
@@ -47,8 +48,8 @@ const user = (sequelize, DataTypes) => {
     return currentUser;
   };
 
-  User.beforeCreate(async user => {
-    user.password = await user.generatePasswordHash();
+  User.beforeCreate(async currentUser => {
+    currentUser.password = await currentUser.generatePasswordHash();
   });
 
   User.prototype.generatePasswordHash = async function() {
