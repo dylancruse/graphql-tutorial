@@ -28,6 +28,9 @@ const user = (sequelize, DataTypes) => {
         len: [8, 42],
       },
     },
+    role: {
+      type: DataTypes.STRING,
+    },
   });
 
   User.associate = models => {
