@@ -7,7 +7,7 @@ import resolvers from './resolvers';
 import models, { sequelize } from './models';
 import 'dotenv/config';
 
-const createUsersWithMessages = async () => {
+const createUsersWithMessages = async date => {
   await models.User.create(
     {
       username: 'dcruse',
@@ -17,6 +17,7 @@ const createUsersWithMessages = async () => {
       messages: [
         {
           text: 'Well hello there.',
+          createdAt: date.setSeconds(date.getSeconds() + 1),
         },
       ],
     },
@@ -33,9 +34,11 @@ const createUsersWithMessages = async () => {
       messages: [
         {
           text: 'Hello',
+          createdAt: date.setSeconds(date.getSeconds() + 1),
         },
         {
           text: 'ayyyyyooooo',
+          createdAt: date.setSeconds(date.getSeconds() + 1),
         },
       ],
     },
@@ -89,7 +92,7 @@ const eraseDatabaseOnSync = true;
 
 sequelize.sync({ force: eraseDatabaseOnSync }).then(async () => {
   if (eraseDatabaseOnSync) {
-    createUsersWithMessages();
+    createUsersWithMessages(new Date());
   }
   app.listen({ port: 8000 }, () => {
     console.log('Apollo Server is running on http://localhost:8000/graphql');
