@@ -12,6 +12,13 @@ export default gql`
     updateMessage(id: ID!, text: String!): Boolean!
   }
 
+  type Message {
+    id: ID!
+    text: String!
+    user: User!
+    createdAt: Date!
+  }
+
   type MessageConnection {
     edges: [Message!]!
     pageInfo: PageInfo!
@@ -22,10 +29,11 @@ export default gql`
     endCursor: String!
   }
 
-  type Message {
-    id: ID!
-    text: String!
-    user: User!
-    createdAt: Date!
+  extend type Subscription {
+    messageCreated: MessageCreated!
+  }
+
+  type MessageCreated {
+    message: Message!
   }
 `;
