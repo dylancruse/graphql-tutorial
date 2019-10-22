@@ -73,8 +73,8 @@ export default {
         .catch(error => false),
   },
   Message: {
-    user: async (message, args, { models }) =>
-      await models.User.findByPk(message.userId),
+    user: async (message, args, { loaders, models }) =>
+      await loaders.user.load(message.userId),
   },
   Subscription: {
     messageCreated: {
