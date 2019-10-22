@@ -107,15 +107,15 @@ server.applyMiddleware({ app, path: '/graphql' });
 const httpServer = http.createServer(app);
 server.installSubscriptionHandlers(httpServer);
 
-// const eraseDatabaseOnSync = true;
+const isTest = false; // !!process.env.TEST_DATABASE;
+const isProduction = false; // !!process.env.DATABASE_URL;
+const port = process.env.PORT || 8000;
 
-const isTest = !!process.env.TEST_DATABASE;
-
-sequelize.sync({ force: isTest }).then(async () => {
-  if (isTest) {
+sequelize.sync({ force: isTest || isProduction }).then(async () => {
+  if (isTest || isProduction) {
     createUsersWithMessages(new Date());
   }
   httpServer.listen({ port: 8000 }, () => {
-    console.log('Apollo Server is running on http://localhost:8000/graphql');
+    console.log(`Apollo Server is running on http://localhost:${port}/graphql`);
   });
 });
