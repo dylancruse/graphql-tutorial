@@ -68,6 +68,8 @@ const app = express();
 app.use(cors());
 
 const server = new ApolloServer({
+  introspection: true,
+  playground: true,
   typeDefs: schema,
   resolvers,
   formatError: error => {
