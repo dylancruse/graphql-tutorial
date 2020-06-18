@@ -1,67 +1,14 @@
 import 'dotenv/config';
-import express from 'express';
-import { ApolloServer, AuthenticationError } from 'apollo-server-express';
-import cors from 'cors';
-import jwt from 'jsonwebtoken';
 import http from 'http';
-import DataLoader from 'dataloader';
-import loaders from './loaders';
+import express from 'express';
+import cors from 'cors';
+import { ApolloServer } from 'apollo-server-express';
+
 import schema from './schema';
 import resolvers from './resolvers';
 import models, { sequelize } from './models';
-
-const createUsersWithMessages = async date => {
-  await models.User.create(
-    {
-      username: 'dcruse',
-      email: 'dylan@email.com',
-      password: 'dcruseeeeee',
-      role: 'ADMIN',
-      messages: [
-        {
-          text: 'Well hello there.',
-          createdAt: date.setSeconds(date.getSeconds() + 1),
-        },
-      ],
-    },
-    {
-      include: [models.Message],
-    }
-  );
-
-  await models.User.create(
-    {
-      username: 'klarberg',
-      email: 'kate@email.com',
-      password: 'klarberg',
-      messages: [
-        {
-          text: 'Hello',
-          createdAt: date.setSeconds(date.getSeconds() + 1),
-        },
-        {
-          text: 'ayyyyyooooo',
-          createdAt: date.setSeconds(date.getSeconds() + 1),
-        },
-      ],
-    },
-    {
-      include: [models.Message],
-    }
-  );
-};
-
-const getMe = async req => {
-  const token = req.headers['x-token'];
-
-  if (token) {
-    try {
-      return await jwt.verify(token, process.env.SECRET);
-    } catch (e) {
-      throw new AuthenticationError('Session expired. Please sign in again.');
-    }
-  }
-};
+import { getUser } from './authorization';
+import { createUsersWithMessages } from './seed';
 
 const app = express();
 
@@ -85,20 +32,14 @@ const server = new ApolloServer({
     if (connection) {
       return {
         models,
-        loaders: {
-          user: new DataLoader(keys => loaders.user.batchUsers(keys, models)),
-        },
       };
     }
     if (req) {
-      const me = await getMe(req);
+      const me = await getUser(req);
       return {
         models,
         me,
         secret: process.env.SECRET,
-        loaders: {
-          user: new DataLoader(keys => loaders.user.batchUsers(keys, models)),
-        },
       };
     }
   },
@@ -107,6 +48,7 @@ const server = new ApolloServer({
 server.applyMiddleware({ app, path: '/graphql' });
 
 const httpServer = http.createServer(app);
+
 server.installSubscriptionHandlers(httpServer);
 
 const isTest = false; // !!process.env.TEST_DATABASE;

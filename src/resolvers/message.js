@@ -72,10 +72,6 @@ export default {
         })
         .catch(error => false),
   },
-  Message: {
-    user: async (message, args, { loaders, models }) =>
-      await loaders.user.load(message.userId),
-  },
   Subscription: {
     messageCreated: {
       subscribe: () => pubsub.asyncIterator(EVENTS.MESSAGE.CREATED),
