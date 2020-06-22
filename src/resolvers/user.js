@@ -31,7 +31,7 @@ export default {
         email,
         password,
       });
-      return { token: createToken(user, secret, '30m') };
+      return { token: createToken(user, secret, '10000m') };
     },
     signIn: async (parent, { login, password }, { models, secret }) => {
       const user = await models.User.findByLogin(login);
@@ -46,7 +46,7 @@ export default {
         throw new AuthenticationError('Invalid password.');
       }
 
-      return { token: createToken(user, secret, '30m') };
+      return { token: createToken(user, secret, '10000m') };
     },
     deleteUser: combineResolvers(
       isAdmin,

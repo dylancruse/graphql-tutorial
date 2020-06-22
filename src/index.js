@@ -10,10 +10,13 @@ import models, { sequelize } from './models';
 import { getUser } from './authorization';
 import { createUsersWithMessages } from './seed';
 
+// Express app
 const app = express();
 
+// Add CORS to Express
 app.use(cors());
 
+// Apollo Server
 const server = new ApolloServer({
   introspection: true,
   playground: true,
@@ -36,6 +39,7 @@ const server = new ApolloServer({
     }
     if (req) {
       const me = await getUser(req);
+      console.log(req)
       return {
         models,
         me,
@@ -45,16 +49,21 @@ const server = new ApolloServer({
   },
 });
 
+// Set up Apollo Server on Express at /graphql
 server.applyMiddleware({ app, path: '/graphql' });
 
+// Use Node http server to host Express server
 const httpServer = http.createServer(app);
 
+// Add subscriptions to Apollo Server
 server.installSubscriptionHandlers(httpServer);
 
 const isTest = false; // !!process.env.TEST_DATABASE;
 const isProduction = false; // !!process.env.DATABASE_URL;
-const port = process.env.PORT || 8000;
+const port = process.env.PORT;
 
+// Sync sequelize models to the DB and run the server
+// (Force will cause tables to be overwritten)
 sequelize.sync({ force: isTest || isProduction }).then(async () => {
   if (isTest || isProduction) {
     createUsersWithMessages(new Date());
