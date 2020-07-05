@@ -11,30 +11,36 @@ const createToken = async (user, secret, expiresIn) => {
 
 export default {
   Query: {
-    users: async (parent, args, { models }) => await models.User.findAll(),
-    user: async (parent, { id }, { models }) => await models.User.findByPk(id),
-    me: async (parent, args, { models, me }) => {
-      if (!me) {
+    // Return all users
+    getUsers: async (parent, args, { models }) => await models.User.findAll(),
+
+    // Return a user by their id
+    getUser: async (parent, { id }, { models }) =>
+      await models.User.findByPk(id),
+
+    // Return the current user using their token
+    getCurrentUser: async (parent, args, { models, user }) => {
+      if (!user) {
         return null;
       }
-      return await models.User.findByPk(me.id);
+      return await models.User.findByPk(user.id);
     },
   },
   Mutation: {
-    signUp: async (
-      parent,
-      { username, email, password },
-      { models, secret }
-    ) => {
+    // Create a new user and return a token
+    signUp: async (_, { username, email, password }, { models, secret }) => {
       const user = await models.User.create({
         username,
         email,
         password,
       });
+
       return { token: createToken(user, secret, '10000m') };
     },
-    signIn: async (parent, { login, password }, { models, secret }) => {
-      const user = await models.User.findByLogin(login);
+
+    // Return a token for a user if their credentials are valid
+    signIn: async (parent, { username, password }, { models, secret }) => {
+      const user = await models.User.findByUsername(username);
 
       if (!user) {
         throw new UserInputError('No user found with these login credentials.');
@@ -48,6 +54,8 @@ export default {
 
       return { token: createToken(user, secret, '10000m') };
     },
+
+    // Delete a user by their id
     deleteUser: combineResolvers(
       isAdmin,
       async (parent, { id }, { models }) =>

@@ -22,8 +22,8 @@ export const user = async variables =>
 export const signIn = async variables =>
   await axios.post(API_URL, {
     query: `
-      mutation($login: String!, $password: String!) {
-        signIn(login: $login, password: $password) {
+      mutation($username: String!, $password: String!) {
+        signIn(username: $username, password: $password) {
           token
         }
       }

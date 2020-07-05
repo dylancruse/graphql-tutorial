@@ -11,7 +11,7 @@ const fromCursorHash = string =>
 
 export default {
   Query: {
-    messages: async (parent, { cursor, limit = 100 }, { models }) => {
+    getMessages: async (parent, { cursor, limit = 100 }, { models }) => {
       const cursorOptions = cursor
         ? {
             where: {
@@ -39,16 +39,18 @@ export default {
         },
       };
     },
-    message: async (parent, { id }, { models }) =>
+
+    getMessage: async (parent, { id }, { models }) =>
       await models.Message.findByPk(id),
   },
+
   Mutation: {
     createMessage: combineResolvers(
       isAuthenticated,
-      async (parent, { text }, { me, models }) => {
+      async (parent, { text }, { user, models }) => {
         const message = await models.Message.create({
           text,
-          userId: me.id,
+          userId: user.id,
         });
         pubsub.publish(EVENTS.MESSAGE.CREATED, {
           messageCreated: { message },
@@ -56,22 +58,25 @@ export default {
         return message;
       }
     ),
+
     deleteMessage: combineResolvers(
       isAuthenticated,
       isMessageOwner,
       async (parent, { id }, { models }) =>
         await models.Message.destroy({ where: { id } })
     ),
-    updateMessage: async (parent, { id, text }, { models }) =>
-      await models.Message.update({ text }, { where: { id } })
-        .then(result => {
-          if (Object.values(result)[0] === 1) {
-            return true;
-          }
-          return false;
-        })
-        .catch(error => false),
+
+    updateMessage: async (parent, { id, text }, { models }) => {
+      try {
+        await models.Message.update({ text }, { where: { id } });
+      } catch (e) {
+        throw new Error('Unable to update message');
+      }
+
+      return true;
+    },
   },
+
   Subscription: {
     messageCreated: {
       subscribe: () => pubsub.asyncIterator(EVENTS.MESSAGE.CREATED),

@@ -33,18 +33,20 @@ const user = (sequelize, DataTypes) => {
     },
   });
 
+  // User Associations
   User.associate = models => {
     User.hasMany(models.Message, { onDelete: 'CASCADE' });
   };
 
-  User.findByLogin = async login => {
+  // Find a user by their username
+  User.findByUsername = async username => {
     let currentUser = await User.findOne({
-      where: { username: login },
+      where: { username },
     });
 
     if (!currentUser) {
       currentUser = await User.findOne({
-        where: { email: login },
+        where: { email: username },
       });
     }
 

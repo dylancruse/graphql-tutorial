@@ -41,7 +41,7 @@ describe('users', () => {
           },
         },
       } = await userApi.signIn({
-        login: 'klarberg',
+        username: 'klarberg',
         password: 'klarberg',
       });
 

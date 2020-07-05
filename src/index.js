@@ -33,15 +33,15 @@ const server = new ApolloServer({
   },
   context: async ({ req, connection }) => {
     if (connection) {
-      return {
-        models,
-      };
+      return { models };
     }
+
     if (req) {
-      const me = await getUser(req);
+      const user = await getUser(req);
+
       return {
         models,
-        me,
+        user,
         secret: process.env.SECRET,
       };
     }
