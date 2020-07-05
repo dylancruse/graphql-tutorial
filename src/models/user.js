@@ -44,6 +44,7 @@ const user = (sequelize, DataTypes) => {
       where: { username },
     });
 
+    // Check for the email as well just in case
     if (!currentUser) {
       currentUser = await User.findOne({
         where: { email: username },
@@ -53,15 +54,18 @@ const user = (sequelize, DataTypes) => {
     return currentUser;
   };
 
+  // Function to run before a User is created
   User.beforeCreate(async currentUser => {
     currentUser.password = await currentUser.generatePasswordHash();
   });
 
+  // Hashes the users password
   User.prototype.generatePasswordHash = async function() {
     const saltRounds = 10;
     return await bcrypt.hash(this.password, saltRounds);
   };
 
+  // Compares a hashed password against the stored hash
   User.prototype.validatePassword = async function(password) {
     return await bcrypt.compare(password, this.password);
   };

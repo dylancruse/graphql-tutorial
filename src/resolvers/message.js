@@ -11,7 +11,9 @@ const fromCursorHash = string =>
 
 export default {
   Query: {
-    getMessages: async (parent, { cursor, limit = 100 }, { models }) => {
+    // Returns all messages
+    getMessages: async (_, { cursor, limit = 100 }, { models }) => {
+      // Add a where clause to the messages query if we received a cursor
       const cursorOptions = cursor
         ? {
             where: {
@@ -22,32 +24,43 @@ export default {
           }
         : {};
 
+      // Get all of the messages using options (1 more than the limit)
       const messages = await models.Message.findAll({
         order: [['createdAt', 'DESC']],
         limit: limit + 1,
         ...cursorOptions,
       });
 
+      // If we found more messages than the passed in limit,
+      // we know there are more messages to fetch
       const hasNextPage = messages.length > limit;
-      const edges = hasNextPage ? messages.slice(0, -1) : messages;
+
+      // If there are more messages to be fetched, return the messages
+      // we got minus the extra one we queried for
+      const returnedMessages = hasNextPage ? messages.slice(0, -1) : messages;
 
       return {
-        edges,
+        messages: returnedMessages,
         pageInfo: {
           hasNextPage,
-          endCursor: toCursorHash(edges[edges.length - 1].createdAt.toString()),
+          // Create a cursor out of the createdAt value of the last message
+          endCursor: toCursorHash(
+            returnedMessages[returnedMessages.length - 1].createdAt.toString()
+          ),
         },
       };
     },
 
-    getMessage: async (parent, { id }, { models }) =>
+    // Returns a single message by its id
+    getMessage: async (_, { id }, { models }) =>
       await models.Message.findByPk(id),
   },
 
   Mutation: {
+    // Creates a new message
     createMessage: combineResolvers(
       isAuthenticated,
-      async (parent, { text }, { user, models }) => {
+      async (_, { text }, { user, models }) => {
         const message = await models.Message.create({
           text,
           userId: user.id,
@@ -59,16 +72,28 @@ export default {
       }
     ),
 
+    // Deletes a message by its id
     deleteMessage: combineResolvers(
       isAuthenticated,
       isMessageOwner,
-      async (parent, { id }, { models }) =>
+      async (_, { id }, { models }) =>
         await models.Message.destroy({ where: { id } })
     ),
 
-    updateMessage: async (parent, { id, text }, { models }) => {
+    // Updates a message by its id
+    updateMessage: async (_, { id, text }, { models }) => {
+      const message = await models.Message.findOne({
+        where: {
+          id,
+        },
+      });
+
+      if (!message) {
+        throw new Error('Unable to find message');
+      }
+
       try {
-        await models.Message.update({ text }, { where: { id } });
+        await message.update({ text });
       } catch (e) {
         throw new Error('Unable to update message');
       }

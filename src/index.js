@@ -32,10 +32,12 @@ const server = new ApolloServer({
     };
   },
   context: async ({ req, connection }) => {
+    // If websockets
     if (connection) {
       return { models };
     }
 
+    // if HTTP request
     if (req) {
       const user = await getUser(req);
 

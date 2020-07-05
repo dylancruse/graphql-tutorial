@@ -11,6 +11,7 @@ const message = (sequelize, DataTypes) => {
     },
   });
 
+  // Message Associations
   Message.associate = models => {
     Message.belongsTo(models.User);
   };

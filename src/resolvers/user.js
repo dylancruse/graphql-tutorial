@@ -12,14 +12,13 @@ const createToken = async (user, secret, expiresIn) => {
 export default {
   Query: {
     // Return all users
-    getUsers: async (parent, args, { models }) => await models.User.findAll(),
+    getUsers: async (_, args, { models }) => await models.User.findAll(),
 
     // Return a user by their id
-    getUser: async (parent, { id }, { models }) =>
-      await models.User.findByPk(id),
+    getUser: async (_, { id }, { models }) => await models.User.findByPk(id),
 
     // Return the current user using their token
-    getCurrentUser: async (parent, args, { models, user }) => {
+    getCurrentUser: async (_, args, { models, user }) => {
       if (!user) {
         return null;
       }
@@ -39,26 +38,31 @@ export default {
     },
 
     // Return a token for a user if their credentials are valid
-    signIn: async (parent, { username, password }, { models, secret }) => {
+    signIn: async (_, { username, password }, { models, secret }) => {
+      // Look up the user
       const user = await models.User.findByUsername(username);
 
+      // Throw an error if we didn't find the user
       if (!user) {
         throw new UserInputError('No user found with these login credentials.');
       }
 
+      // Check their password
       const isValid = await user.validatePassword(password);
 
+      // Throw an error if their password was incorrect
       if (!isValid) {
         throw new AuthenticationError('Invalid password.');
       }
 
+      // Create a return a token for that user
       return { token: createToken(user, secret, '10000m') };
     },
 
     // Delete a user by their id
     deleteUser: combineResolvers(
       isAdmin,
-      async (parent, { id }, { models }) =>
+      async (_, { id }, { models }) =>
         await models.User.destroy({
           where: { id },
         })

@@ -20,7 +20,7 @@ export default gql`
   }
 
   type MessageConnection {
-    edges: [Message!]!
+    messages: [Message!]!
     pageInfo: PageInfo!
   }
 
