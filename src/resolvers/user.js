@@ -27,18 +27,30 @@ export default {
   },
   Mutation: {
     // Create a new user and return a token
-    signUp: async (_, { username, email, password }, { models, secret }) => {
+    signUp: async (
+      _,
+      // Args
+      { username, email, password },
+      // Context
+      { models, secret, tokenDuration }
+    ) => {
       const user = await models.User.create({
         username,
         email,
         password,
       });
 
-      return { token: createToken(user, secret, '10000m') };
+      return { token: createToken(user, secret, tokenDuration) };
     },
 
     // Return a token for a user if their credentials are valid
-    signIn: async (_, { username, password }, { models, secret }) => {
+    signIn: async (
+      _,
+      // Args
+      { username, password },
+      // Context
+      { models, secret, tokenDuration }
+    ) => {
       // Look up the user
       const user = await models.User.findByUsername(username);
 
@@ -56,7 +68,7 @@ export default {
       }
 
       // Create a return a token for that user
-      return { token: createToken(user, secret, '10000m') };
+      return { token: createToken(user, secret, tokenDuration) };
     },
 
     // Delete a user by their id

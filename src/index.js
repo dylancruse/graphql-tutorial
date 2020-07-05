@@ -45,6 +45,7 @@ const server = new ApolloServer({
         models,
         user,
         secret: process.env.SECRET,
+        tokenDuration: process.env.TOKEN_VALIDITY_DURATION,
       };
     }
   },
