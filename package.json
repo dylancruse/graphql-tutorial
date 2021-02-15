@@ -20,7 +20,7 @@
   },
   "dependencies": {
     "@babel/preset-env": "^7.6.3",
-    "apollo-server": "^2.9.6",
+    "apollo-server": "^2.14.2",
     "apollo-server-express": "^2.9.6",
     "bcrypt": "^3.0.8",
     "chai": "^4.2.0",
